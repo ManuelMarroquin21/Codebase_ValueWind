@@ -1,0 +1,21 @@
+Commodity:
+  - name: "Steel"
+    Parameters: 
+      material_cost: 10000
+      flag_GBM: false
+      mu: 0.05
+      sigma: 0
+      flag_JumpDif: true
+      mu_jump: 0.5
+      lambda_jump: 0.02
+      sigma_jump: 0.1
+  - name: "Copper"
+    Parameters: 
+      material_cost: 50000
+      flag_GBM: false
+      mu: 0.05
+      sigma: 0
+      flag_JumpDif: true
+      mu_jump: 0.5
+      lambda_jump: 0.02
+      sigma_jump: 0.1

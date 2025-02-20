@@ -1,0 +1,22 @@
+cost_categories:
+- name: Development & Consenting
+  subcategories:
+  - fixed_cost: 40000000
+    name: Project Management
+  - fixed_cost: 15000000
+    name: Legal
+  - fixed_cost: 5000000
+    name: Environmental Survey
+  - fixed_cost: 5000000
+    name: Coastal Processes Survey
+  - fixed_cost: 5000000
+    name: Met Station Survey
+  - fixed_cost: 5000000
+    name: Sea Bed Survey
+  - fixed_cost: 110000000
+    name: Contingency
+  - fixed_cost: 500000
+    name: C_Base Engineering
+  - fixed_cost: 5000
+    name: C_Unit Engineering
+

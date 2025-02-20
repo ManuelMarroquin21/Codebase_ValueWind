@@ -1,0 +1,28 @@
+cost_categories:
+- name: "Installation&Comissioning"
+  subcategories:
+  -name: "Transportation to port"
+        subsubcategories:
+          - name: "Road transport"
+            fixed_cost: 0
+            variable transportation: True
+                Value: 1
+                Duration: 1
+                UnitCost: 10000 # 
+                OW: 0.95 # Operational window
+          - name: "Seatransport"
+            fixed_cost: 0
+            variable transportation: True
+                Value: 1
+                Duration: 1
+                UnitCost: 50000 # 
+                OW: 0.8 # Operational window
+  -name: "Port installation"
+        subsubcategories:
+          - name: "Quaside lift"
+            fixed_cost: 0
+            variable transportation: True
+                Value: 5
+                Duration: 1
+                UnitCost: 10000 # cost/ton
+                OW: 0.75 # Complexity factor

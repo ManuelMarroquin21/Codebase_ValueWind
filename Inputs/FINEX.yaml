@@ -1,0 +1,4 @@
+FINEX:
+  - name: "Debt"
+    Parameters: 
+      interest_rate: 5 #%

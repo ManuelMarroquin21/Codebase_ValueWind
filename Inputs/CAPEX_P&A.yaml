@@ -1,0 +1,66 @@
+cost_categories:
+  - name: "Production & Acquisition"
+    subcategories:
+      - name: "Turbine"
+        project_time: #Time of occurance in hours/days/months/years
+            value: 5
+            unit: months
+        subsubcategories:
+          - name: "Generator"
+            fixed_cost: 0
+            flag_material_cost: true
+            material:
+              - name: "Copper"
+                mass: 5
+                CF: 2  # Complexity factor
+              - name: "Steel"
+                mass: 5
+                CF: 2  # Complexity factor
+          - name: "Tower"
+            fixed_cost: 1000000
+            flag_material_cost: false
+            material:
+              name: ""
+              mass: null
+              CF: null  # Complexity factor
+
+      - name: "Substructure"
+        project_time: 
+            value: 5
+            unit: months
+        subsubcategories:
+          - name: "SubstructureWT"
+            fixed_cost: 0
+            flag_material_cost: true
+            material:
+              name: "Steel"
+              mass: 2000
+              CF: 1.2  # Complexity factor
+          - name: "SubstructureWT2"
+            fixed_cost: 0
+            flag_material_cost: true
+            material:
+              name: "Steel"
+              mass: 2000
+              CF: 1.2  # Complexity factor
+      - name: "Mooring"
+        project_time:
+            value: 5
+            unit: months
+        subsubcategories:
+          - name: "MooringWT"
+            fixed_cost: 0
+            flag_material_cost: false
+            material:
+              name: ""
+              mass: null
+              CF: null  # Complexity factor
+            flag_length_cost: false
+            cost_per_length: null
+          - name: "Anchor"
+            fixed_cost: 0
+            flag_material_cost: true
+            material:
+              name: "Steel"
+              mass: 2000
+              CF: 1.2  # Complexity factor
