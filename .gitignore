@@ -1,10 +1,24 @@
-<<<<<<< HEAD
-# Ignore the virtual environment folder
+# Ignore virtual environments
 venv/
 
-# Ignore Python cache files
+# Python bytecode files
 __pycache__/
 *.pyc
+*.pyo
 
-# Ignore Jupyter Notebook checkpoints
-=======
+# IDE or editor-specific files (you can add more depending on what you're using)
+.vscode/
+.idea/
+
+# Environment variables or config files (if applicable)
+.env
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# MacOS specific files (if applicable)
+.DS_Store
+
+# Windows specific files (if applicable)
+Thumbs.db
+
