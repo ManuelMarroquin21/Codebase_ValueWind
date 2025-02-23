@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ignore the virtual environment folder
 venv/
 
@@ -6,4 +7,4 @@ __pycache__/
 *.pyc
 
 # Ignore Jupyter Notebook checkpoints
-.ipynb_checkpoints/
+=======
