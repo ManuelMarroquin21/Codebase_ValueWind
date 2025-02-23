@@ -1,5 +1,5 @@
 WindFarm:
-WF_inputFolder: M:\Projects\Cost Model\HiperSim\valuewind\Inputs\WF_Model
+WF_inputFolder: C:\Users\Manuel\Desktop\DTU\Master Thesis\Codebase_ValueWind\Inputs\WF_Model
 WF_inputFiles:
     SM: constTSR_smooth.mat
     Layout: lillgrund_wtg_positions_testing_1T.csv

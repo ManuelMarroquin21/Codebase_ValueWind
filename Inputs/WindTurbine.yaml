@@ -1,5 +1,5 @@
 WindTurbine:
-WT_inputFolder: M:\Projects\Cost Model\HiperSim\valuewind\Inputs\WT_Model
+WT_inputFolder: C:\Users\Manuel\Desktop\DTU\Master Thesis\Codebase_ValueWind\Inputs\WT_Model
 WT_inputFiles:
     SM: constTSR_smooth.mat
     Layout: lillgrund_wtg_positions_testing_1T.csv

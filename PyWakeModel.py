@@ -30,11 +30,17 @@ class PyWakeModel:
 
     def get_windFarm_response_timestep(self, ws, wd, ti, control_output):
         #operating = np.ones((len(self.x), 1))
+        if control_output is None or not hasattr(control_output, 'get'):
+            # Log a warning or error if appropriateprint("Warning: control_output is None, using default yaw values")
+            yaw = np.zeros(len(self.x))
+        else:
+            yaw = control_output.get('yaw', np.zeros(len(self.x)))
         sim_res = self.wf_model(self.x, self.y,     # wind turbine positions
                    wd=wd,  # Wind direction
                    ws=ws,  # Wind speed
                    time = 0, 
                    TI=ti,  # Turbulence intensity
+                   yaw=yaw # Turbine yaw angles
                    #operating = operating # this can interact with the control_output
                   )
         return sim_res
