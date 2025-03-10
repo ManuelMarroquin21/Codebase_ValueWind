@@ -1,5 +1,5 @@
 name: valuewind
-valuewind_inputFolder: C:\Users\Manuel\Desktop\DTU\Master Thesis\Codebase_ValueWind\Inputs
+valuewind_inputFolder: C:\Users\Unai\Codebase_ValueWind\Inputs
 Capex_inputFiles:
     PA: CAPEX_P&A.yaml
 Finex_inputFiles:

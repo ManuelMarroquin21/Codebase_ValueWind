@@ -1,4 +1,7 @@
 Market:
-MA_inputFolder: M:\Projects\Cost Model\HiperSim\valuewind\Inputs\Market_Data
-MA_DummyParameter: true
+    MA_inputFolder: C:\Users\Unai\Codebase_ValueWind\Inputs
 
+    # Paths to market price data
+    Market_Prices:
+        DayAhead: DayAheadPrices.csv
+        
