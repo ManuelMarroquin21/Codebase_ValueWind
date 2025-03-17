@@ -14,13 +14,17 @@ class MarketEnv:
         self.market_prices = self.load_market_prices()
     
     def load_market_prices(self):
-        # Loads the market prices from the CSV file, selecting only the relevant column (DK1 bidding zone).
-        # Assumes that relevant data starts at row 5 (index 4 in Python, since it's zero-based).
-        df = pd.read_csv(self.market_price_file, skiprows=4)  # Skip first 4 rows
-        df = df.iloc[:87672, 5]  # Select DK1 column and correct row range
+        df = pd.read_csv(self.market_price_file, skiprows=4, usecols=[5], names=['Price'], delimiter=',')
         df.index = pd.date_range(start="2015-01-01 00:00", periods=len(df), freq='h')
-        df.name = "Market Price"
-        return df
+
+        # First, assign the market prices
+        self.market_prices = df['Price']
+
+        # Then, apply resampling
+        return self.market_prices.resample('ME').mean().reindex(self.market_prices.index, method='ffill')
+
+
+
     
     def get_reference_price(self):
         # Calculates the reference price based on the selected reference period.
@@ -32,33 +36,24 @@ class MarketEnv:
             return self.market_prices.resample('Y').mean().reindex(self.market_prices.index, method='ffill')
         else:  # Default to hourly
             return self.market_prices
-        
+    
     def calculate_cashflow(self):
         # Calculates cashflow based on the selected scheme type and configuration.
         reference_price = self.get_reference_price()
         
         if self.scheme_type == "FiT":
-            return self.strike_price  # Fixed revenue per MWh
+            return pd.Series(self.strike_price, index=self.market_prices.index)  # Fixed revenue per MWh as a time series
         elif self.scheme_type == "FiP":
             return reference_price + self.premium  # Market price + premium
         elif self.scheme_type == "CfD":
-            cashflow = reference_price - self.strike_price
-            
             if self.one_sided:
-                # One-sided CfD:
-                # If the market price is higher than the strike price, the operator keeps the market price (no state payment).
-                # If the market price is lower than the strike price, the state pays the operator (cashflow is positive).
-                cashflow = cashflow.clip(lower=0)  # Only the state pays when market < strike, otherwise operator keeps market price.
+                # One-sided CfD: Operator receives market price if it's above the strike price, otherwise receives the strike price.
+                return self.strike_price - reference_price.clip(upper=self.strike_price)
             else:
-                # Two-sided CfD:
-                # If the market price is higher than the strike price, the operator pays the state (cashflow is negative).
-                # If the market price is lower than the strike price, the state pays the operator (cashflow is positive).
-                cashflow = cashflow  # Cashflow is negative when market > strike (operator pays state), positive when market < strike (state pays operator).
-            
-            return cashflow
+                # Two-sided CfD: Operator receives strike price, paying or receiving the difference.
+                return self.strike_price - reference_price
         else:
             raise ValueError("Invalid scheme type")
-
     
     def aggregate_payments(self):
         # Aggregates cashflows based on the selected payment frequency.
@@ -74,38 +69,22 @@ class MarketEnv:
             return cashflow
     
     def plot_cashflow(self):
-        # Aggregates cashflows based on the selected payment frequency.
+        # Plots the strike price and highlights CfD cashflows without showing the market price line.
         cashflow = self.aggregate_payments()
-
+        
         plt.figure(figsize=(12, 6))
-
-        if self.scheme_type == "FiT":
-            # For FiT, the cashflow is simply the strike price
-            plt.axhline(y=self.strike_price, color='red', linestyle='--', label=f'Strike Price (FiT) - {self.strike_price} EUR/MWh')
-            plt.fill_between(cashflow.index, 0, self.strike_price, color='orange', alpha=0.5, label=f'Fixed Payment (FiT) - {self.strike_price} EUR/MWh')
+        plt.axhline(y=self.strike_price, color='red', linestyle='--', label='Strike Price')
         
-        elif self.scheme_type == "FiP":
-            # For FiP, the cashflow is market price + premium
-            cashflow = self.calculate_cashflow()
-            plt.plot(cashflow.index, cashflow, label=f"FiP Cashflow (Market Price + {self.premium} EUR Premium)", color='purple')
-            plt.axhline(y=0, color='black', linestyle='--', label='Zero Line (FiP)')
-        
-        elif self.scheme_type == "CfD":
-            # For CfD, we have a dynamic cashflow based on the difference to the strike price
-            plt.axhline(y=self.strike_price, color='red', linestyle='--', label=f'Strike Price (CfD) - {self.strike_price} EUR/MWh')
-            
-            # Highlight positive and negative cashflows (operator or government payments)
-            plt.fill_between(cashflow.index, self.strike_price, cashflow + self.strike_price, 
-                            where=(cashflow < 0), color='green', alpha=0.5, label='Gov. Payment to Operator (EUR/MWh)')
-            plt.fill_between(cashflow.index, self.strike_price, cashflow + self.strike_price, 
-                            where=(cashflow > 0), color='orange', alpha=0.5, label='Operator Payment to Gov. (EUR/MWh)')
-        
-        else:
-            raise ValueError("Invalid scheme type")
+        # Highlight positive (operator pays government) and negative (government pays operator) cashflows
+        plt.fill_between(cashflow.index, self.strike_price, cashflow + self.strike_price, 
+                         where=(cashflow < 0), color='green', alpha=0.5, label='Gov. Payment to Operator')
+        plt.fill_between(cashflow.index, self.strike_price, cashflow + self.strike_price, 
+                         where=(cashflow > 0), color='orange', alpha=0.5, label='Operator Payment to Gov.')
         
         plt.xlabel('Time')
-        plt.ylabel('Price (EUR/MWh)')
-        plt.title(f'{self.scheme_type} Cashflows (EUR/MWh)')
+        plt.ylabel(f'Cashflow ({"EUR/MWh" if self.payment_frequency == "hourly" else "EUR"})')
+        plt.title(f'{self.scheme_type} Cashflows')
         plt.legend()
         plt.grid()
         plt.show()
+
