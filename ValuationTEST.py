@@ -1,5 +1,5 @@
 from MarketEnvironment import MarketEnv
-from Valuation import Valuation
+from ProjectValuation import Valuation
 
 # Define market price file and strike price
 market_price_file = "C:\\Users\\Unai\\Codebase_ValueWind\\Inputs\\DayAheadPrices.csv"
@@ -13,7 +13,7 @@ market_env = MarketEnv(
     premium=8,
     one_sided=True,  # One-sided CfD
     reference_period="monthly",  # "hourly", "daily", "monthly", "yearly"
-    payment_frequency="monthly"  # "hourly", "daily", "monthly", "yearly"
+    payment_frequency="yearly"  # "hourly", "daily", "monthly", "yearly"
 )
 
 # Define project valuation parameters
@@ -25,8 +25,17 @@ discount_rate = 0.07  # 7% discount rate
 valuation = Valuation(market_env, capacity_mw, lifetime_years, discount_rate)
 
 # Calculate and print NPV and IRR
-print("NPV:", valuation.calculate_npv())
-print("IRR:", valuation.calculate_irr())
+try:
+    npv = valuation.calculate_npv()
+    print("NPV:", npv)
+except ValueError as e:
+    print("Error calculating NPV:", e)
+
+irr = valuation.calculate_irr()
+if irr is not None:
+    print("IRR:", irr)
+else:
+    print("IRR calculation failed.")
 
 # Plot revenue over the project lifetime
 valuation.plot_revenue()

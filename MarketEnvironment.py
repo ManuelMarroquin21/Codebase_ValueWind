@@ -6,7 +6,7 @@ class MarketEnv:
         # Initialize the Market Environment with given parameters
         self.market_price_file = market_price_file
         self.strike_price = strike_price
-        self.scheme_type = scheme_type  # "CfD", "FiT", "FiP"
+        self.scheme_type = scheme_type  # "CfD", "FiT", "FiP", "Market"
         self.premium = premium  # Only for FiP
         self.one_sided = one_sided  # Only for CfD
         self.reference_period = reference_period  # "hourly", "daily", "monthly", "yearly"
@@ -14,26 +14,22 @@ class MarketEnv:
         self.market_prices = self.load_market_prices()
     
     def load_market_prices(self):
-        df = pd.read_csv(self.market_price_file, skiprows=4, usecols=[5], names=['Price'], delimiter=',')
+        # Loads the market prices from the CSV file, selecting only the relevant column (DK1 bidding zone).
+        # Assumes that relevant data starts at row 5 (index 4 in Python, since it's zero-based).
+        df = pd.read_csv(self.market_price_file, skiprows=4)  # Skip first 4 rows
+        df = df.iloc[:87672, 5]  # Select DK1 column and correct row range
         df.index = pd.date_range(start="2015-01-01 00:00", periods=len(df), freq='h')
-
-        # First, assign the market prices
-        self.market_prices = df['Price']
-
-        # Then, apply resampling
-        return self.market_prices.resample('ME').mean().reindex(self.market_prices.index, method='ffill')
-
-
-
+        df.name = "Market Price"
+        return df
     
     def get_reference_price(self):
         # Calculates the reference price based on the selected reference period.
         if self.reference_period == "daily":
-            return self.market_prices.resample('D').mean().reindex(self.market_prices.index, method='ffill')
+            return self.market_prices.resample('d').mean().reindex(self.market_prices.index, method='ffill')
         elif self.reference_period == "monthly":
-            return self.market_prices.resample('M').mean().reindex(self.market_prices.index, method='ffill')
+            return self.market_prices.resample('ME').mean().reindex(self.market_prices.index, method='ffill')
         elif self.reference_period == "yearly":
-            return self.market_prices.resample('Y').mean().reindex(self.market_prices.index, method='ffill')
+            return self.market_prices.resample('y').mean().reindex(self.market_prices.index, method='ffill')
         else:  # Default to hourly
             return self.market_prices
     
@@ -52,6 +48,8 @@ class MarketEnv:
             else:
                 # Two-sided CfD: Operator receives strike price, paying or receiving the difference.
                 return self.strike_price - reference_price
+        elif self.scheme_type == "Market":
+            return reference_price  # Operator simply receives the market price
         else:
             raise ValueError("Invalid scheme type")
     
@@ -60,11 +58,11 @@ class MarketEnv:
         cashflow = self.calculate_cashflow()
         
         if self.payment_frequency == "daily":
-            return cashflow.resample('D').sum()
+            return cashflow.resample('d').sum()
         elif self.payment_frequency == "monthly":
-            return cashflow.resample('M').sum()
+            return cashflow.resample('ME').sum()
         elif self.payment_frequency == "yearly":
-            return cashflow.resample('Y').sum()
+            return cashflow.resample('y').sum()
         else:  # Default to hourly
             return cashflow
     
@@ -88,3 +86,6 @@ class MarketEnv:
         plt.grid()
         plt.show()
 
+# Example usage:
+# market_env = MarketEnv("C:\\Users\\Unai\\Codebase_ValueWind\\Inputs\\DayAheadPrices.csv", strike_price=50, scheme_type="CfD", one_sided=False, reference_period="monthly", payment_frequency="yearly")
+# market_env.plot_cashflow()
